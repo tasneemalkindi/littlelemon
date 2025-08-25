@@ -1,0 +1,17 @@
+{% extends 'restaurant/base.html' %}
+
+{% load static %}
+
+{% block title %}Reservation Confirmed - The Little Lemon{% endblock %}
+
+{% block content %}
+<h1>Reservation Confirmed </h1>
+
+<p>Thank you for booking with us.</p>
+<p><strong>Date:</strong> {{ reservation.date }}</p>
+<p><strong>Time:</strong> {{ reservation.time }}</p>
+<p><strong>Party Size:</strong> {{ reservation.party_size }}</p>
+<p><strong>Your Table Number:</strong> {{ reservation.table.table_number }}</p>
+
+    <a href="/">Back to Home</a>
+{% endblock %}

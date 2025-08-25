@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login - The Little Lemon</title>
+</head>
+<body>
+    <h1>Login</h1>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Login</button>
+    </form>
+<br>
+    <form method="GET" action="/">
+        <button type="submit">Continue without an account</button>
+    </form>
+
+    <br>
+    
+    <p>Don't have an account? <a href="{% url 'register' %}">Register here</a></p>
+</body>
+</html>

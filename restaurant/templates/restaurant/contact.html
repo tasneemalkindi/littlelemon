@@ -1,0 +1,14 @@
+{% extends 'restaurant/base.html' %}
+
+{% load static %}
+
+{% block title %}Contact- The Little Lemon{% endblock %}
+
+{% block content %}
+    <h1> Contact Us </h1>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit"> Send</button>
+    </form>
+{% endblock %}

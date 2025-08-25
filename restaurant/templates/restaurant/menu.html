@@ -1,0 +1,87 @@
+{% extends 'restaurant/base.html' %}
+{% load static %}
+
+{% block title %} Menu - The Little Lemon {% endblock %}
+
+{% block content %}
+<style>
+  .card { background:#f8f6ef; padding:20px; border-radius:10px; box-shadow:0 4px 12px rgba(0,0,0,.1); max-width:700px; margin:0 auto; }
+  .filters { display:flex; flex-wrap:wrap; gap:12px; align-items:end; justify-content:center; margin: 16px auto 24px; }
+  .filters .field { display:flex; flex-direction:column; gap:4px; }
+  .filters input, .filters select { padding:8px 10px; border:1px solid #ddd; border-radius:8px; }
+  .filters button { padding:10px 14px; border:none; border-radius:8px; background:#ffcd4d; cursor:pointer; }
+  .filters a.reset { padding:10px 14px; border:none; border-radius:8px; background:#eee7d5; cursor:pointer; }
+  .menu-list li { margin:10px 0; }
+  hr { border:none; border-top:1px solid #e8e2cf; margin:14px 0; }
+</style>
+
+<h1>Our Menu</h1>
+
+<form method="get" class="filters">
+  <div class="field">
+    <label for="category">Category</label>
+    <select name="category" id="category">
+      <option value="">All</option>
+      {% for c in categories_all %}
+        <option value="{{ c.id }}" {% if selected_category|stringformat:'s' == c.id|stringformat:'s' %}selected{% endif %}>
+          {{ c.menu_category_name }}
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="field">
+    <label for="q">Search</label>
+    <input type="text" id="q" name="q" value="{{ q }}" placeholder="Name or description">
+  </div>
+
+  <div class="field">
+    <label for="max_price">Max price</label>
+    <input type="number" step="0.01" id="max_price" name="max_price" value="{{ max_price }}"
+           placeholder="{{ food_bounds.hi|default_if_none:'' }}">
+  </div>
+
+  <button type="submit">Apply</button>
+  <a class="reset" href="{% url 'menu' %}">Reset</a>
+</form>
+
+<div class="card">
+  {% for category, items in foods_by_category.items %}
+    <h2 id="{{ category.menu_category_name|slugify }}">{{ category.menu_category_name }}</h2>
+
+    {% if items %}
+      <ul class="menu-list">
+        {% for item in items %}
+          <li>
+            <strong>{{ item.food_name }}</strong><br>
+            {{ item.description }}<br>
+            <em>$ {{ item.price }}</em><br>
+            {% if item.image %}
+              <img src="{{ item.image.url }}" width="150" class="home-image">
+            {% endif %}
+          </li>
+          <hr>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No items found for this filter.</p>
+    {% endif %}
+  {% endfor %}
+</div>
+
+<h2>Drinks</h2>
+<div class="card">
+  {% for dcat, drinks in drinks_by_category.items %}
+    <h3>{{ dcat.drink_category_name }}</h3>
+    {% if drinks %}
+      <ul>
+        {% for drink in drinks %}
+          <li>{{ drink.drink_name }} - ${{ drink.price }}</li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No drinks found for this filter.</p>
+    {% endif %}
+  {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,87 @@
+{% extends 'restaurant/base.html' %}
+{% load static %}
+
+{% block title %}Home - The Little Lemon{% endblock %}
+
+{% block content %}
+    <h1 style>Welcome to The Little Lemon Restaurant!</h1>
+    <p>We serve fresh and delicious food everyday 🍋</p>
+
+   <div class="full-bleed">
+  <img src="{% static 'restaurant/lemon.png' %}" alt="The Little Lemon Restaurant" class="home-image hero-img">
+  </div>
+
+
+    {% if user.is_authenticated %}
+        <button onclick="location.href='/reserve/'">Make a reservation</button>
+    {%endif%}
+
+<h2>Cuisines</h2>
+
+<div class="cuisine-section">
+  <div class="cuisine-grid">
+      {% for category in categories %}
+          <a href="/menu/#{{ category.menu_category_name|slugify }}" class="cuisine-card">
+              {% if category.image %}
+                  <img src="{{ category.image.url }}" alt="{{ category.menu_category_name }}">
+              {% else %}
+                  <img src="{% static 'default_cuisine.jpg' %}" alt="{{ category.menu_category_name }}">
+              {% endif %}
+              <span>{{ category.menu_category_name }}</span>
+          </a>
+      {% endfor %}
+  </div>
+</div>
+
+<style>
+.cuisine-section {
+  background-image: url("{% static 'restaurant/lemonbox.png' %}");
+  background-size: 110% auto; 
+  background-position: center 50%;
+  background-repeat: no-repeat;
+  padding: 60px 20px;
+  border-radius: 12px;
+}
+
+
+.cuisine-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15px, 1fr)); 
+  gap: 1px;                 
+  justify-content: center;     
+  align-items: start;     
+  margin: 0 auto; 
+  max-width: 1200px;
+  padding: 20px;
+}
+
+
+
+.cuisine-card {
+  display:grid ;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  padding: 70px;
+  border-radius: 10px;
+}
+
+.cuisine-card:hover {
+  transform: scale(1.05);
+}
+
+.cuisine-card img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.cuisine-card span {
+  font-weight: bold;
+  color: #333;
+}
+</style>
+
+{% endblock %}

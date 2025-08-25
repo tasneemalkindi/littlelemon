@@ -1,0 +1,204 @@
+{% extends 'restaurant/base.html' %}
+{% load static %}
+
+{% block title %}Reservations The Little Lemon{% endblock %}
+
+{% block content %}
+<h1>Reserve a Table</h1>
+
+<div class="card">
+<form method="POST" id="reservation-form">
+  {% csrf_token %}
+  {{ form.non_field_errors }}
+  {{ form.name }}
+  {{ form.email }}
+
+  <p>
+    {{ form.date.label_tag }}
+    {{ form.date }}
+    {% if form.date.errors %}
+        <div class="field-error">
+            {{ form.date.errors.0 }}
+            </div>
+        {% endif %}
+
+  </p>
+
+  <p>
+    {{ form.party_size.label_tag }}
+    {{ form.party_size }}
+    {{ form.party_size.errors }}
+  </p>
+
+  <p>
+    {{ form.is_shared.label_tag }}
+    {{ form.is_shared }}
+    {{ form.is_shared.errors }}
+  </p>
+
+  <p>
+    <label>Time</label>
+
+    <input type="hidden" name="time" id="id_time" value="{{ form.data.time|default_if_none:'' }}">
+
+    <div id="time_buttons" class="time-buttons">
+      <em class="placeholder">Select date and party size</em>
+    </div>
+    {{ form.time.errors }}
+  </p>
+
+  <style>
+    .time-buttons { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: center; align-items: center; min-height: 60px; text-align: center; }
+    .time-btn {
+      padding: .5rem .75rem; border: 1px solid #ddd; border-radius: .5rem;
+      background: #fff; cursor: pointer; font: inherit;
+    }
+    .time-btn:hover { border-color: #bbb; }
+    .time-btn.active { border-color: #333; background: #f2f2f2; }
+    .time-btn.disabled {
+      color: #888; background: #f8f8f8; border-color: #eee; cursor: not-allowed; opacity: .7;
+    }
+    .placeholder { color: #000000;}
+
+    .card {
+        background: #faf0d5;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        max-width: 500px;  
+        margin: 0 auto; 
+        }
+    
+    .field-error {
+        color: #b94a48;
+        background: #f2dede;
+        border: 1px solid #eed3d7;
+        padding: 6px 12px;
+        margin-top: 4px;
+        border-radius: 4px;
+        font-size: 0.95em;
+}
+
+  </style>
+
+  <button type="submit">Book Now</button>
+</form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var dateInput      = document.getElementById('{{ form.date.id_for_label }}');
+  var partySelect    = document.getElementById('{{ form.party_size.id_for_label }}');
+  var sharedCheckbox = document.getElementById('{{ form.is_shared.id_for_label }}');
+  var hiddenTime     = document.getElementById('id_time');
+  var buttonsWrap    = document.getElementById('time_buttons');
+
+  // helper functions
+  function clearButtons() {
+    buttonsWrap.innerHTML = '';
+  }
+
+  function showMessage(text) {
+    buttonsWrap.innerHTML = '<em class="placeholder">' + text + '</em>';
+  }
+
+  function clearActiveButtons() {
+    var all = buttonsWrap.querySelectorAll('.time-btn');
+    for (var i = 0; i < all.length; i++) {
+      all[i].classList.remove('active');
+    }
+  } 
+
+  function makeButton(value, label, isDisabled) {
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'time-btn' + (isDisabled ? ' disabled' : '');
+    btn.textContent = label;
+    btn.dataset.value = value;
+
+    if (isDisabled) {
+      btn.disabled = true;
+    } else {
+      btn.onclick = function () {
+        hiddenTime.value = value;      
+        clearActiveButtons();      
+        btn.classList.add('active'); 
+      };
+    }
+    return btn;
+  }
+
+  function renderButtons(data) {
+    var available = (data && data.available) ? data.available : [];
+    var full      = (data && data.full) ? data.full : [];
+
+    clearButtons();
+
+    // merge into a list that is either disabled or not 
+    var merged = [];
+    for (var i = 0; i < available.length; i++) {
+      merged.push({ value: available[i].value, label: available[i].label, disabled: false });
+    }
+    for (var j = 0; j < full.length; j++) {
+      merged.push({ value: full[j].value, label: full[j].label, disabled: true });
+    }
+
+    if (merged.length === 0) {
+      showMessage('No available time slots');
+      hiddenTime.value = '';
+      return;
+    }
+
+    // sorting the time 
+    merged.sort(function (a, b) {
+      if (a.value < b.value) return -1;
+      if (a.value > b.value) return 1;
+      return 0;
+    });
+
+    for (var k = 0; k < merged.length; k++) {
+      var item = merged[k];
+      var btn = makeButton(item.value, item.label, item.disabled);
+      buttonsWrap.appendChild(btn); // adds each time button into that container so it shows up on the page.
+    }
+  }
+
+ async function fetchSlots() {
+  var date = dateInput.value;
+  var party = partySelect.value;
+  var isShared = sharedCheckbox.checked;
+
+  if (!date || !party) {
+    showMessage('Select date & party size');
+    return;
+  }
+// make urls that are used to send data to the server
+  var params = 'date=' + encodeURIComponent(date) +
+               '&party_size=' + encodeURIComponent(party) +
+               '&is_shared=' + encodeURIComponent(String(isShared));
+
+  try {
+    var resp = await fetch('{% url "available_slots" %}?' + params, {
+      headers: { 'Accept': 'application/json' }
+    });
+
+    var data = await resp.json();
+    if (data.error) {
+      showMessage(data.error);
+      hiddenTime.value = '';
+      return; 
+    }
+    renderButtons(data);
+}   catch (e) {
+    showMessage('Could not load slots');
+  }
+}
+  // when user changes inputs, refresh the buttons
+  dateInput.onchange = fetchSlots;
+  partySelect.onchange = fetchSlots;
+  sharedCheckbox.onchange = fetchSlots;
+
+});
+</script>
+
+{% endblock %}
