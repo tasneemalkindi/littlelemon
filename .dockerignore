@@ -1,0 +1,13 @@
+.git
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+db.sqlite3
+postgres_data
+staticfiles/
+*~
+.#*
+#*#
+.DS_Store

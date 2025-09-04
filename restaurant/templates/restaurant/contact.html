@@ -1,0 +1,285 @@
+{% extends "restaurant/base.html" %}
+{% load static %}
+{% block title %}Contact - The Little Lemon{% endblock %}
+
+{% block content %}
+<section class="contact">
+  <div class="contact-grid">
+ <!-- LEFT SIDE -->
+    <div class="contact-info">
+      <h1>Let's Talk!</h1>
+      <p>Drop us a line, we'd love to hear from you. To learn more about us,
+         <a href="/">visit our homepage</a>.
+      </p>
+
+      <div class="contact-visual">
+        <img src="{% static 'restaurant/phone.png' %}" alt="Little Lemon" />
+      </div>
+    </div>
+
+    <!-- RIGHT SIDE -->
+<div class="form_area">
+  <h2 class="title">Fill in Your Details</h2>
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+
+    <div class="form_group">
+      <label class="sub_title" for="{{ form.name.id_for_label }}">Name *</label>
+      {{ form.name }}
+      {{ form.name.errors }}
+    </div>
+
+    <div class="form_group">
+      <label class="sub_title" for="{{ form.email.id_for_label }}">Email *</label>
+      {{ form.email }}
+      {{ form.email.errors }}
+    </div>
+
+    <div class="form_group">
+      <label class="sub_title" for="{{ form.message.id_for_label }}">Message</label>
+      {{ form.message }}
+      {{ form.message.errors }}
+    </div>
+
+        <div class="form-actions">
+        <button type="submit" class="gif-submit">
+            <img class="gif-still" src="{% static 'restaurant/spinninglemon.png' %}" alt="" aria-hidden="true">
+            <img class="gif-anim"  src="{% static 'restaurant/spinninglemon.gif' %}"  alt="" aria-hidden="true">
+            <span class="sr-only">Send</span>
+        </button>
+        </div>
+
+
+      </form>
+    </div>
+
+  </div>
+</section>
+<style>
+    /* Contact Section */
+.contact {
+  padding: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.contact-grid {
+  display: flex;              /* side by side */
+  justify-content: space-between;
+  align-items: flex-start;
+  max-width: 1000px;
+  width: 100%;
+  gap: 40px;                  /* space between left & right */
+}
+
+/* Left side */
+.contact-info {
+  flex: 1;                    /* take half space */
+}
+
+.contact-info h1 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.contact-info p {
+  font-size: 1rem;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.contact-visual img {
+  max-width: 250px;
+  height: auto;
+}
+
+/* Right side (form) */
+.contact-card {
+  flex: 1;                    /* take half space */
+  background: #fff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.contact-card h2 {
+  margin-bottom: 20px;
+}
+
+.contact-card form {
+  display: flex;
+  flex-direction: column;
+}
+
+.contact-card label {
+  margin: 10px 0 5px;
+  font-weight: 500;
+}
+
+.contact-card input,
+.contact-card textarea {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  margin-bottom: 15px;
+  width: 100%;
+}
+
+.contact-card button {
+  background-color: #ffefa2; /* Lemon yellow */
+  color: #333;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.contact-card button:hover {
+  background-color: #d4b012;
+}
+
+/* Responsive: stack on small screens */
+@media (max-width: 768px) {
+  .contact-grid {
+    flex-direction: column;
+  }
+
+  .contact-visual img {
+    margin: 0 auto;
+    display: block;
+  }
+}
+/* visually-hidden text for accessibility */
+.sr-only{
+  position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+  overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+}
+
+/* the “gif button” */
+.gif-submit{
+  position: relative;
+  display: inline-block;
+  width: 160px;          /* set to your GIF width */
+  height: 56px;          /* set to your GIF height */
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.gif-submit img{
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: contain;      /* or 'cover' depending on art */
+  display: block;
+}
+
+/* start with the animated one hidden */
+.gif-submit .gif-anim{ opacity: 0; transition: opacity .15s ease; }
+.gif-submit .gif-still{ opacity: 1; transition: opacity .15s ease; }
+
+/* show animation on hover/focus/active */
+.gif-submit:hover .gif-anim,
+.gif-submit:focus-visible .gif-anim,
+.gif-submit:active .gif-anim{ opacity: 1; }
+.gif-submit:hover .gif-still,
+.gif-submit:focus-visible .gif-still,
+.gif-submit:active .gif-still{ opacity: 0; }
+
+/* respect users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce){
+  .gif-submit .gif-anim{ display:none; }
+}
+
+.form-actions{
+  display: flex;
+  justify-content: center; /* centers the button */
+  margin-top: 12px;
+}
+.input-group {
+ position: relative;
+}
+
+.input {
+ border: solid 1.5px #9e9e9e;
+ border-radius: 1rem;
+ background: none;
+ padding: 1rem;
+ font-size: 1rem;
+ color: #f5f5f5;
+ transition: border 150ms cubic-bezier(0.4,0,0.2,1);
+}
+
+.user-label {
+ position: absolute;
+ left: 15px;
+ color: #e8e8e8;
+ pointer-events: none;
+ transform: translateY(1rem);
+ transition: 150ms cubic-bezier(0.4,0,0.2,1);
+}
+
+.input:focus, input:valid {
+ outline: none;
+ border: 1.5px solid #1a73e8;
+}
+
+.input:focus ~ label, input:valid ~ label {
+ transform: translateY(-50%) scale(0.8);
+ background-color: #212121;
+ padding: 0 .2em;
+ color: #2196f3;
+}
+
+.contact .container {               /* only used if you wrap with .container */
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; text-align: center;
+}
+
+.contact .form_area {
+  display: flex; justify-content: center; align-items: center;
+  flex-direction: column;
+  background-color: #FFF6BF;
+  height: auto; width: auto;
+  border: 2px solid #2E6B3F;
+  border-radius: 20px;
+  box-shadow: 3px 4px 0px 1px #F4C95D;
+  padding: 20px;                 /* add a little breathing room */
+}
+
+.contact .title {
+  color: #2E6B3F; font-weight: 900; font-size: 1.5em; margin-top: 20px;
+}
+
+.contact .sub_title { color: #3F8E4E ; font-weight: 600; margin: 5px 0; }
+
+.contact .form_group {
+  display: flex; flex-direction: column; align-items: flex-start; margin: 10px;
+}
+
+.contact .form_style {
+  outline: none; border: 2px solid #264143;
+  box-shadow: 3px 4px 0px 1px #fffd99;
+  width: 290px; padding: 12px 10px;
+  border-radius: 4px; font-size: 15px;
+  background: #fff;              /* readable on the pink card */
+}
+
+.contact .form_style:focus, .contact .btn:focus {
+  transform: translateY(4px);
+  box-shadow: 1px 2px 0px 0px #E99F4C;
+}
+
+.contact .btn:hover { opacity: .9; }
+
+.contact .link { font-weight: 800; color: #264143; padding: 5px; }
+
+</style>
+{% endblock %}

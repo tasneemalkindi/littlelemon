@@ -1,0 +1,67 @@
+{% extends 'restaurant/base.html' %}
+{% block title %}My Reservations{% endblock %}
+{% block content %}
+<h1>My Reservations</h1>
+
+{% if reservations_upcoming %}
+  <h2 style="margin-top:16px;">Upcoming</h2>
+  <table style="width:100%; border-collapse: collapse; margin-top: 8px;">
+    <thead>
+      <tr style="background-color: #f3e8c8;">
+        <th style="text-align:left; padding:8px;">Date</th>
+        <th style="text-align:left; padding:8px;">Time</th>
+        <th style="text-align:left; padding:8px;">Guests</th>
+        <th style="text-align:left; padding:8px;">Table</th>
+        <th style="padding:8px; text-align:center;">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in reservations_upcoming %}
+      <tr style="background-color:#f5efdc;">
+        <td style="padding:8px;">{{ r.date|date:"M d, Y" }}</td>
+        <td style="padding:8px;">{{ r.time|time:"g:i A" }}</td>
+        <td style="padding:8px;">{{ r.party_size }}</td>
+        <td style="padding:8px;">{{ r.table }}</td>
+        <td style="padding:8px; text-align:center;">
+          <form action="{% url 'cancel_reservation' r.pk %}" method="post" style="display:inline-block;">
+            {% csrf_token %}
+            <button type="submit" style="padding:5px 10px; background:#dc3545; color:#fff; border:none; border-radius:4px; cursor:pointer;">
+              Cancel
+            </button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <p style="margin-top:16px;">No upcoming reservations.</p>
+{% endif %}
+
+{% if reservations_past %}
+  <h2 style="margin-top:24px;">Past</h2>
+  <table style="width:100%; border-collapse: collapse; margin-top: 8px;">
+    <thead>
+      <tr style="background-color: #f3e2c8;">
+        <th style="text-align:left; padding:8px;">Date</th>
+        <th style="text-align:left; padding:8px;">Time</th>
+        <th style="text-align:left; padding:8px;">Guests</th>
+        <th style="text-align:left; padding:8px;">Table</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in reservations_past %}
+      <tr style="background-color:#f5efdc;">
+        <td style="padding:8px;">{{ r.date|date:"M d, Y" }}</td>
+        <td style="padding:8px;">{{ r.time|time:"g:i A" }}</td>
+        <td style="padding:8px;">{{ r.party_size }}</td>
+        <td style="padding:8px;">{{ r.table }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <p style="margin-top:16px;">No past reservations yet.</p>
+{% endif %}
+
+{% endblock %}

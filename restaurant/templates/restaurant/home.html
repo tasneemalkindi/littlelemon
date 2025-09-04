@@ -1,0 +1,310 @@
+{% extends 'restaurant/base.html' %}
+{% load static %}
+
+{% block title %}Home - The Little Lemon{% endblock %}
+
+{% block content %}
+    <h1 style>Welcome to The Little Lemon Cafe!</h1>
+    <p>We serve fresh and delicious baked goods everyday 🍋</p>
+
+   <div class="full-bleed">
+  <img src="{% static 'restaurant/lemon.png' %}" alt="The Little Lemon Restaurant" class="home-image hero-img">
+  </div>
+
+
+    {% if user.is_authenticated %}
+        <button onclick="location.href='/reserve/'">Make a reservation</button>
+    {%endif%}
+
+<h2>Cuisines</h2>
+
+<div class="cuisine-section">
+  <div class="cuisine-grid">
+      {% for category in categories %}
+          <a href="/menu/#{{ category.menu_category_name|slugify }}" class="cuisine-card">
+              {% if category.image %}
+                  <img src="{{ category.image.url }}" alt="{{ category.menu_category_name }}">
+              {% else %}
+                  <img src="{% static 'default_cuisine.jpg' %}" alt="{{ category.menu_category_name }}">
+              {% endif %}
+              <span>{{ category.menu_category_name }}</span>
+          </a>
+      {% endfor %}
+  </div>
+</div>
+
+<!-- Reviews Section -->
+<section class="reviews full-bleed" id="reviews">
+  <div class="reviews-wrap">
+
+    <h2>Guest Reviews</h2>
+
+    <div class="reviews-grid">
+      <!-- LEFT: Review form -->
+      <div class="review-form">
+        <h3>Leave a Review</h3>
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="form_type" value="review">
+
+          {% if not request.user.is_authenticated %}
+            <label for="id_name">Name</label>
+            {{ review_form.name }}
+          {% endif %}
+
+        <label for="id_rating">Rating</label>
+        <div class="star-rating">
+          {% for i in "54321" %}
+            <input type="radio" id="star{{ i }}" name="rating" value="{{ i }}">
+            <label for="star{{ i }}">★</label>
+          {% endfor %}
+        </div>
+
+
+          <label for="id_comment">Comment</label>
+          {{ review_form.comment }}
+          {{ review_form.non_field_errors }}
+            {% for field in review_form %}
+              {% for err in field.errors %}
+                <p class="form-error">{{ err }}</p>
+              {% endfor %}
+            {% endfor %}
+
+
+          <button type="submit">Submit</button>
+          <p class="help">Your review appears after staff approval.</p>
+        </form>
+      </div>
+
+      <!-- RIGHT: Approved reviews -->
+      <div class="reviews-list">
+        <div class="reviews-summary">
+          <span class="stars">
+            {% with avg=avg_rating|default:0 %}
+              {% for i in "12345" %}
+                <span class="star {% if forloop.counter <= avg|floatformat:0 %}filled{% endif %}">★</span>
+              {% endfor %}
+            {% endwith %}
+          </span>
+          <span class="avg-text">
+            {{ avg_rating|floatformat:1 }}/5 · {{ total_reviews }} review{{ total_reviews|pluralize }}
+          </span>
+        </div>
+
+<ul class="review-cards">
+  {% for r in page_obj %}
+    <li class="review-card">
+      <div class="review-header">
+        <strong>{{ r.name }}</strong>
+        <span class="review-stars">
+          {% for i in "12345" %}
+            <span class="star {% if forloop.counter <= r.rating %}filled{% endif %}">★</span>
+          {% endfor %}
+        </span>
+      </div>
+      <p class="review-text">{{ r.comment|linebreaksbr }}</p>
+      <small class="review-date">{{ r.created_at|date:"M d, Y" }}</small>
+    </li>
+  {% empty %}
+    <p>No reviews yet — be the first! 🍋</p>
+  {% endfor %}
+</ul>
+
+<!-- Pagination controls -->
+<div class="pagination">
+  {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}">« Previous</a>
+  {% endif %}
+
+  <span class="current">
+    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+  </span>
+
+  {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}">Next »</a>
+  {% endif %}
+</div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<style>
+.cuisine-section {
+  background-image: url("{% static 'restaurant/lemonbox.png' %}");
+  background-size: 110% auto; 
+  background-position: center 50%;
+  background-repeat: no-repeat;
+  padding: 60px 20px;
+  border-radius: 12px;
+}
+
+
+.cuisine-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15px, 1fr)); 
+  gap: 1px;                 
+  justify-content: center;     
+  align-items: start;     
+  margin: 0 auto; 
+  max-width: 1000px;
+  padding: 38px;
+  justify-content: start;  
+  margin: 0;               
+  margin-left: 30px;        
+  padding-left: 0px;
+}
+
+
+.cuisine-card {
+  display:grid ;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  padding: 70px;
+  border-radius: 10px;
+}
+
+.cuisine-card:hover {
+  transform: scale(1.05);
+}
+
+.cuisine-card img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.cuisine-card span {
+  font-weight: bold;
+  color: #333;
+}
+
+.reviews {
+  background: url("{% static 'restaurant/reviewbackground.jpg' %}") no-repeat center center;
+  background-size: cover;
+  margin-top: 40px;
+  padding: 60px 0;
+  position: relative;
+}
+
+.reviews::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.7); 
+}
+
+.reviews-wrap {
+  position: relative; 
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 30px;
+  background: #ffffffd9; 
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+}
+
+
+.reviews-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 24px;
+}
+
+.review-form {
+  background-color: #f8f6ef;
+  border: 1px dashed #ffd36b;
+  border-radius: 12px;
+  padding: 16px;
+}
+.review-form label { display: block; margin: 8px 0 4px; font-weight: 600; }
+.review-form select,
+.review-form textarea,
+.review-form input[type="text"] {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #e2dfd4;
+  background: #fffef8;
+}
+.review-form button {
+  margin-top: 10px;
+  background: #ffcd4d;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.review-form button:hover { background: #ffdb70; }
+.review-form .help { font-size: 12px; color: #7a7067; margin-top: 6px; }
+
+.reviews-list { }
+.reviews-summary { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+.stars .star, .review-stars .star { font-size: 18px; opacity: 0.3; color:#ffcd4d}
+.stars .star.filled, .review-stars .star.filled { opacity: 1; }
+.avg-text { color: #5a5148; }
+
+.review-cards { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+.review-card { background: #f8f6ef; border-radius: 12px; padding: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.06); }
+.review-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.review-text { margin: 8px 0 6px; color: #3b3434; }
+.review-date { color: #7a7067; }
+
+.pagination {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  font-weight: 600;
+}
+.pagination a {
+  padding: 6px 12px;
+  border-radius: 6px;
+  background: #ffcd4d;
+  color: #333;
+  text-decoration: none;
+}
+.pagination a:hover {
+  background: #ffdb70;
+}
+.pagination .current {
+  padding: 6px 12px;
+  color: #555;
+}
+
+.star-rating {
+  display: flex;
+  flex-direction: row-reverse; 
+  justify-content: center;    
+  gap: 4px;                  
+  margin: 10px 0;            
+}
+
+.star-rating input {
+  display: none; 
+}
+
+.star-rating label {
+  font-size: 28px;
+  color: #ddd;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.star-rating input:checked ~ label {
+  color: #ffcd4d;
+}
+
+.star-rating label:hover,
+.star-rating label:hover ~ label {
+  color: #ffdb70;
+}
+
+</style>
+
+{% endblock %}

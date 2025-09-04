@@ -1,0 +1,165 @@
+body {
+  font-family: 'Quicksand', sans-serif;
+  margin: 0;
+  background-color: #fcf8e6;
+}
+
+.container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+    text-align: center;
+}
+
+h1 {
+    font-size: 2.5em;
+    color: #3b3434;
+}
+
+p {
+    font-size: 1.2em;
+    color: #666;
+}
+
+button {
+    background-color: #ffcd4d;
+    color: #333;
+    padding: 12px 24px;
+    font-size: 1em;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #ffdb70;
+}
+
+.cuisine-pills{ display:flex; flex-wrap:wrap; gap:12px; justify-content:center; margin-top:16px; }
+.pill{
+  padding:10px 16px; border-radius:999px; background:#fff7d6; color:#3b3434; 
+  border:1px solid #ffe08a; text-decoration:none; font-weight:600; 
+  transition:transform .15s, background .15s, box-shadow .15s;
+}
+.pill:hover{ background:#ffefb3; transform:translateY(-1px); box-shadow:0 4px 10px rgba(0,0,0,.06); }
+
+.home-image {       
+    border-radius: 15px; 
+    display: block;      
+    margin: 20px auto;
+}
+
+
+.nav-links a {
+    margin: 0 10px;
+    text-decoration: none;
+    color: #333;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.full-bleed{
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+}
+
+
+.hero-img{
+  display: block;
+  width:100%;
+  height: clamp(120px, 45vh, 520px); 
+  object-fit: cover;             
+}
+
+
+.full-bleed .home-image{
+  border-radius: 0;
+  margin: 0;
+}
+
+.nav {
+  padding: 10px 20px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;  /* centers content horizontally */
+  align-items: center;
+  color: #000;
+}
+
+.nav-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;      /* full width */
+  max-width: 1200px; /* keeps nav from stretching too wide */
+}
+
+
+.nav-left a {
+  margin-right: 15px;
+  text-decoration: none;
+  color: #000;
+  font-weight: 600;
+}
+
+.nav-left .brand {
+  font-weight: 600;
+  font-size: 1.5em;
+  margin-right: 25px;
+}
+
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nav-right a {
+  text-decoration: none;
+  font-weight: 600;
+  color: #000;
+}
+
+.welcome {
+  font-size: 1em;
+  color: #000000;
+}
+
+.logout-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  color: #000;
+}
+.logout-btn:hover {
+  text-decoration: underline;
+}
+
+.announcement{
+  background: #fff3c4;
+  border-bottom: 1px solid #ffe08a;
+  text-align: center;
+  padding: 6px 12px;          
+  font-size: 0.95rem;
+  color: #3b3434;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+.announcement a{
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.nav-logo {
+    height: 40px;   /* adjust size */
+    width: auto;
+    vertical-align: middle; /* aligns with text */
+    margin-right: 8px;       /* spacing before text */
+}

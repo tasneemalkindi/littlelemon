@@ -1,0 +1,219 @@
+{% extends 'restaurant/base.html' %}
+{% load static %}
+
+{% block title %} Menu - The Little Lemon {% endblock %}
+
+{% block content %}
+<style>
+
+  .filters { display:flex; flex-wrap:wrap; gap:12px; align-items:end; justify-content:center; margin:16px auto 24px; }
+  .filters .field { display:flex; flex-direction:column; gap:4px; }
+  .filters input, .filters select { padding:8px 10px; border:1px solid #ddd; border-radius:8px; }
+  .filters button { padding:10px 14px; border:none; border-radius:8px; background:#ffcd4d; cursor:pointer; }
+  .filters a.reset { padding:10px 14px; border:none; border-radius:8px; background:#eee7d5; cursor:pointer; }
+
+
+  .menu-wrapper { max-width:1320px; margin:0 auto; }
+
+
+  .category-card{
+    background:#f8f6ef;
+    border:1px solid #eee1b8;
+    border-radius:16px;
+    box-shadow:0 6px 18px rgba(0,0,0,.06);
+    padding:18px 18px 22px;
+    margin:0 0 22px 0; 
+  }
+
+  .category-header{
+    display:flex; align-items:center; gap:12px;
+    padding:6px 8px 12px; margin:0 0 6px 0;
+    border-bottom:1px dashed #e8ddb1;
+  }
+  .category-dot{ width:10px; height:10px; border-radius:50%; background:#ffd54d; flex:0 0 10px; }
+  .category-title{ margin:0; font-size:1.25rem; font-weight:800; color:#3b3434; }
+
+
+  .menu-grid {
+    display:grid;
+    gap:20px;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  }
+  @media (min-width: 1100px) {
+    .menu-grid { grid-template-columns: repeat(3, 1fr); } 
+  }
+
+  .tile-card { position:relative; }
+  .details-toggle { position:absolute; opacity:0; pointer-events:none; }
+
+  .tile {
+    position:relative; width:100%;
+    aspect-ratio: 1 / 1;             
+    border-radius:12px; overflow:hidden; background:#fff;
+    box-shadow:0 6px 16px rgba(0,0,0,.08);
+  }
+
+  .tile-img {
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    object-fit: contain;             
+    background:#ffffff;               
+  }
+
+
+  .tile-caption{
+    position:absolute; left:10px; right:10px; bottom:10px; z-index:2;
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    background: rgba(0,0,0,.55);
+    padding:6px 10px; border-radius:8px;
+  }
+  .tile-name{
+    margin:0; font-weight:800; font-size:1rem; color:#fff;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+
+
+  .tile-overlay{
+    position:absolute; inset:0; background:#fff; color:#333; z-index:3;
+    display:flex; flex-direction:column; padding:14px; border:1px solid #eee;
+    opacity:0; pointer-events:none; transition: opacity 220ms ease;
+  }
+  .tile-desc { flex:1; line-height:1.5; color:#444; overflow:auto; }
+  .tile-price {
+    margin-top:10px; font-weight:700; align-self:flex-end;
+    background:#fff7cf; border:1px solid #f2de7e; color:#5c4a00;
+    padding:6px 10px; border-radius:999px;
+  }
+
+
+  .tile:hover .tile-overlay { opacity:1; pointer-events:auto; }
+
+  .tile-cta { display:none; }
+  @media (hover:none) {
+    .tile-cta {
+      display:inline-block;
+      position:absolute; right:10px; top:10px; z-index:4;
+      background:rgba(255,255,255,.95); border:1px solid #ddd; border-radius:8px;
+      padding:6px 10px; font-size:.85rem; color:#333; text-decoration:none;
+    }
+    .tile:hover .tile-overlay { opacity:0; pointer-events:none; } 
+  }
+  .details-toggle:checked + .tile .tile-overlay { opacity:1; pointer-events:auto; }
+
+  .tile-desc::-webkit-scrollbar { width:6px; }
+  .tile-desc::-webkit-scrollbar-thumb { background:#ddd; border-radius:6px; }
+</style>
+
+<h1>Our Menu</h1>
+
+<form method="get" class="filters">
+  <div class="field">
+    <label for="category">Category</label>
+    <select name="category" id="category">
+      <option value="">All</option>
+      {% for c in categories_all %}
+        <option value="{{ c.id }}" {% if selected_category|stringformat:'s' == c.id|stringformat:'s' %}selected{% endif %}>
+          {{ c.menu_category_name }}
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="field">
+    <label for="q">Search</label>
+    <input type="text" id="q" name="q" value="{{ q }}" placeholder="Name or description">
+  </div>
+
+  <button type="submit">Apply</button>
+  <a class="reset" href="{% url 'menu' %}">Reset</a>
+</form>
+
+<div class="menu-wrapper">
+
+  {% for category, items in foods_by_category.items %}
+    <section class="category-card">
+      <header class="category-header">
+        <span class="category-dot"></span>
+        <h2 id="{{ category.menu_category_name|slugify }}" class="category-title">
+          {{ category.menu_category_name }}
+        </h2>
+      </header>
+
+      {% if items %}
+        <div class="menu-grid">
+          {% for item in items %}
+            <div class="tile-card">
+              <input type="checkbox" id="f{{ item.id }}" class="details-toggle">
+              <div class="tile">
+                {% if item.image %}
+                  <img class="tile-img" src="{{ item.image.url }}" alt="{{ item.food_name }}">
+                {% else %}
+                  <div class="tile-img" style="display:flex;align-items:center;justify-content:center;font-size:42px;color:#777;">🍋</div>
+                {% endif %}
+
+                <div class="tile-caption">
+                  <h3 class="tile-name">{{ item.food_name }}</h3>
+                  <label class="tile-cta" for="f{{ item.id }}">Details</label>
+                </div>
+
+                <div class="tile-overlay">
+                  <div class="tile-desc">
+                    {% if item.description %}{{ item.description }}{% else %}<em>No description yet.</em>{% endif %}
+                  </div>
+                  <div class="tile-price">${{ item.price }}</div> {# change to OMR if you prefer #}
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p style="margin:10px 4px 0; color:#666;">No items found for this filter.</p>
+      {% endif %}
+    </section>
+  {% endfor %}
+
+
+  <section class="category-card">
+    <header class="category-header">
+      <span class="category-dot"></span>
+      <h2 class="category-title">Drinks</h2>
+    </header>
+
+    {% for dcat, drinks in drinks_by_category.items %}
+      <div class="category-card" style="margin:14px 0 0; padding:14px;">
+        <h3 class="category-title" style="font-size:1.05rem; margin:0 0 10px;">{{ dcat.drink_category_name }}</h3>
+        {% if drinks %}
+          <div class="menu-grid">
+            {% for drink in drinks %}
+              <div class="tile-card">
+                <input type="checkbox" id="d{{ drink.id }}" class="details-toggle">
+                <div class="tile">
+                  {% if drink.image %}
+                    <img class="tile-img" src="{{ drink.image.url }}" alt="{{ drink.drink_name }}">
+                  {% else %}
+                    <div class="tile-img" style="display:flex;align-items:center;justify-content:center;font-size:42px;color:#777;">🍋</div>
+                  {% endif %}
+
+                  <div class="tile-caption">
+                    <h3 class="tile-name">{{ drink.drink_name }}</h3>
+                    <label class="tile-cta" for="d{{ drink.id }}">Details</label>
+                  </div>
+
+                  <div class="tile-overlay">
+                    <div class="tile-desc">
+                      {% if drink.description %}{{ drink.description }}{% else %}<em>—</em>{% endif %}
+                    </div>
+                    <div class="tile-price">${{ drink.price }}</div>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p style="margin:10px 4px 0; color:#666;">No drinks found for this filter.</p>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </section>
+</div>
+{% endblock %}
